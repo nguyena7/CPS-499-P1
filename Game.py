@@ -111,8 +111,9 @@ class ZombieWavesLayer(cocos.layer.Layer):
         self.game_layer = game_layer
         self.zombies_list = {}
         for i in range(1, self.zombie_num+1):
-            speed = random.randint(100, 300)
-            zombie_sprite = ZombieSprite(i, walk_anim, (-100, 175), speed, self, self.game_layer)
+            speed = random.randint(250, 300)
+            rand_x = random.randrange(-200, 0, 25)
+            zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, 175), speed, self, self.game_layer)
             self.zombies_list[i] = zombie_sprite
             self.add(zombie_sprite)
 
@@ -125,14 +126,17 @@ class ZombieWavesLayer(cocos.layer.Layer):
             # Update Wave counter and Label
             self.game_layer.remove(self.game_layer.wave_label)
             wave_str = "Wave: " + str(self.game_layer.wave_count)
-            self.game_layer.wave_label= cocos.text.Label(wave_str, position=(50, 650), font_size=30, color=(0, 0, 0, 255))
+            self.game_layer.wave_label = cocos.text.Label(wave_str, position=(50, 650), font_size=30, color=(0, 0, 0, 255))
             game_layer.add(self.game_layer.wave_label)
 
     def new_wave(self, zombie_num):
         self.zombies_list = {}
+        wave = self.game_layer.wave_count
         for i in range(1, zombie_num+1):
-            speed = random.randint(100, 300)
-            zombie_sprite = ZombieSprite(i, walk_anim, (-50, 175), speed * i/2, self, self.game_layer)
+            speed = random.randint(250, 300)
+            rand_x = random.randrange(-1000, 0, 25)
+            print(rand_x)
+            zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, 175), speed * (wave/2), self, self.game_layer)
             self.zombies_list[i] = zombie_sprite
             self.add(zombie_sprite)
 
