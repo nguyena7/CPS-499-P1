@@ -68,7 +68,7 @@ class Game(cocos.layer.Layer):
         self.add(self.wall_sprite)
         self.add(ZombieWavesLayer(zombie_num=2, game_layer=self))
         self.add(ExplosionLayer())
-        self.wave_count = 0
+        self.wave_count = 1
         self.wall_health = 10
 
         # Label for Wave count
@@ -113,7 +113,7 @@ class ZombieWavesLayer(cocos.layer.Layer):
         for i in range(1, self.zombie_num+1):
             speed = random.randint(250, 300)
             rand_x = random.randrange(-200, 0, 25)
-            zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, 175), speed, self, self.game_layer)
+            zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, 175), speed * 0.1, self, self.game_layer)
             self.zombies_list[i] = zombie_sprite
             self.add(zombie_sprite)
 
@@ -136,7 +136,7 @@ class ZombieWavesLayer(cocos.layer.Layer):
             speed = random.randint(250, 300)
             rand_x = random.randrange(-1000, 0, 25)
             print(rand_x)
-            zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, 175), speed * (wave/2), self, self.game_layer)
+            zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, 175), speed * (wave * 0.2), self, self.game_layer)
             self.zombies_list[i] = zombie_sprite
             self.add(zombie_sprite)
 
@@ -149,9 +149,18 @@ class ZombieSprite(cocos.sprite.Sprite):
         self.image = image
         self.position = pos
         self.velocity = (0, 0)
+        self.scale = .25
+
         self.zombie_layer = zombie_layer
         self.game_layer = game_layer
-        self.scale = .25
+
+        self.health = 3
+        self.health_bar = HealthBar(0, 255, 0, 255, self.health)
+        self.health_bar.position = (-90, 200)
+        self.health_bar.width = 200
+        self.health_bar.height = 50
+        self.add(self.health_bar)
+
         self.do(Mover(speed))
         self.schedule_interval(self.update, 1 / 60)
         window.push_handlers(self.on_mouse_press)
@@ -168,10 +177,12 @@ class ZombieSprite(cocos.sprite.Sprite):
 
     def on_processed_touch(self, x, y, buttons, modifiers):
         # Move zombie offscreen before removing it from scene
-        self.position = (-1000, -1000)
-        self.stop()
-        self.kill()
-        del self.zombie_layer.zombies_list[self.id]
+        self.health = self.health - 1
+        if self.health == 0:
+            self.position = (-1000, -1000)
+            self.stop()
+            self.kill()
+            del self.zombie_layer.zombies_list[self.id]
 
     def update(self, dt):
         # check collision with wall
@@ -193,13 +204,18 @@ class ZombieSprite(cocos.sprite.Sprite):
             del self.zombie_layer.zombies_list[self.id]
 
 
+class HealthBar(cocos.layer.ColorLayer):
+    def __int__(self,  r, g, b, a, max_health):
+        super(HealthBar, self).__init__(r, g, b, a, width, height)
+
+
 class BoomSprite(cocos.sprite.Sprite):
     """Explosion sprite"""
     def __init__(self, x, y, image):
         super(BoomSprite, self).__init__(image)
         self.image = image
         self.position = (x, y)
-        self.scale = 3
+        self.scale = 1
         self.game_layer = game_layer
         self.duration = len(boom_texture_list) * 0.05
 
