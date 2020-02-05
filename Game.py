@@ -14,6 +14,7 @@ height = 720
 
 # Loading images
 zombie_walk = pyglet.resource.image('walk_spritesheet.png')
+#zombie_dead = pyglet.resource.image('dead_spritesheet.png')
 castle = pyglet.resource.image('wall_good.png')
 castle_lil_broke = pyglet.resource.image('wall_lil_broke.png')
 castle_lot_broke = pyglet.resource.image('wall_lotta_broke.png')
@@ -23,17 +24,21 @@ explosion = pyglet.resource.image('explosionSmall.png')
 
 # Dividing Spritesheets
 walk_grid = pyglet.image.ImageGrid(zombie_walk, 1, 10)
+#dead_grid = pyglet.image.ImageGrid(zombie_walk, 1, 10)
 boom_grid = pyglet.image.ImageGrid(explosion, 5, 5)
 
 # Convert to texture grid
 walk_texture = pyglet.image.TextureGrid(walk_grid)
 walk_texture_list = walk_texture[:]
+#dead_texture = pyglet.image.TextureGrid(dead_grid)
+#dead_texture_list = walk_texture[:]
 boom_texture = pyglet.image.TextureGrid(boom_grid)
 boom_texture_list = boom_texture[:]
 
 # Get Animation Objects
 walk_anim = pyglet.image.Animation.from_image_sequence(walk_texture_list, 0.1, loop=True)
 boom_anim = pyglet.image.Animation.from_image_sequence(boom_texture_list, 0.05, loop=False)
+#dead_anim = pyglet.image.Animation.from_image_sequence(dead_texture_list, 0.1, loop=False)
 
 # Create a window using Director
 window = cocos.director.director.init(
@@ -154,7 +159,8 @@ class ZombieSprite(cocos.sprite.Sprite):
         self.zombie_layer = zombie_layer
         self.game_layer = game_layer
 
-        self.health = 3
+        self.max_health = 3
+        self.health = self.max_health
         self.health_bar_red = HealthBar(255, 0, 0, 255, self.health)
         self.health_bar_red.position = (-90, 200)
         self.health_bar_red.width = 200
@@ -163,7 +169,7 @@ class ZombieSprite(cocos.sprite.Sprite):
 
         self.health_bar_green = HealthBar(0, 255, 0, 255, self.health)
         self.health_bar_green.position = (-90, 200)
-        self.health_bar_green.width = 150
+        self.health_bar_green.width = 200
         self.health_bar_green.height = 50
         self.add(self.health_bar_green)
 
@@ -184,7 +190,14 @@ class ZombieSprite(cocos.sprite.Sprite):
     def on_processed_touch(self, x, y, buttons, modifiers):
         # Move zombie offscreen before removing it from scene
         self.health = self.health - 1
+        #self.health_bar_green.reduce_health(self.max_health)
+        self.health_bar_green.width = self.health_bar_green.width - (self.health_bar_green.width / self.max_health)
+        print(self.health_bar_green.width)
+        if self.health_bar_green.width < 0:
+            self.health_bar_green.width = 0
+
         if self.health == 0:
+            #play death animation
             self.position = (-1000, -1000)
             self.stop()
             self.kill()
@@ -213,6 +226,14 @@ class ZombieSprite(cocos.sprite.Sprite):
 class HealthBar(cocos.layer.ColorLayer):
     def __int__(self,  r, g, b, a, max_health):
         super(HealthBar, self).__init__(r, g, b, a, width, height)
+        self.width = width
+        self.height = height
+
+    def reduce_health(self, max_health):
+        self.width = self.width - (self.width / max_health)
+        print(self.width)
+        if self.width < 0:
+            self.width = 0
 
 
 class BoomSprite(cocos.sprite.Sprite):
