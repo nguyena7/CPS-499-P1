@@ -155,11 +155,17 @@ class ZombieSprite(cocos.sprite.Sprite):
         self.game_layer = game_layer
 
         self.health = 3
-        self.health_bar = HealthBar(0, 255, 0, 255, self.health)
-        self.health_bar.position = (-90, 200)
-        self.health_bar.width = 200
-        self.health_bar.height = 50
-        self.add(self.health_bar)
+        self.health_bar_red = HealthBar(255, 0, 0, 255, self.health)
+        self.health_bar_red.position = (-90, 200)
+        self.health_bar_red.width = 200
+        self.health_bar_red.height = 50
+        self.add(self.health_bar_red)
+
+        self.health_bar_green = HealthBar(0, 255, 0, 255, self.health)
+        self.health_bar_green.position = (-90, 200)
+        self.health_bar_green.width = 150
+        self.health_bar_green.height = 50
+        self.add(self.health_bar_green)
 
         self.do(Mover(speed))
         self.schedule_interval(self.update, 1 / 60)
