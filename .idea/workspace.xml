@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d48e7704-499d-4063-a525-d7fd7f8a1a11" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Game.py" beforeDir="false" afterPath="$PROJECT_DIR$/Game.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/background.png" beforeDir="false" afterPath="$PROJECT_DIR$/background.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,7 +32,7 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.Game">
     <configuration name="Game" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Project_1" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -54,9 +54,75 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Sprites_A" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Project_1" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../IntroductionToCocos2D_Python" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../IntroductionToCocos2D_Python/Sprites_A.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="WhackADuke" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Project_1" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../IntroductionToCocos2D_Python" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../IntroductionToCocos2D_Python/WhackADuke.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test_lifebar" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Project_1" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Downloads" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/Downloads/test_lifebar.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Python.Game" />
+        <item itemvalue="Python.test_lifebar" />
+        <item itemvalue="Python.Sprites_A" />
+        <item itemvalue="Python.WhackADuke" />
       </list>
     </recent_temporary>
   </component>
@@ -95,22 +161,46 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="659" y="304" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580539221001" />
-    <state width="1900" height="282" key="GridCell.Tab.0.bottom" timestamp="1580675548218">
+    <state x="2497" y="115" key="CommitChangelistDialog2" timestamp="1580874692779">
+      <screen x="1920" y="0" width="1920" height="1040" />
+    </state>
+    <state x="2497" y="115" key="CommitChangelistDialog2/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580874692779" />
+    <state width="1900" height="282" key="GridCell.Tab.0.bottom" timestamp="1580967107512">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1900" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580675548218" />
-    <state width="1900" height="282" key="GridCell.Tab.0.center" timestamp="1580675548218">
+    <state width="1900" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580967107512" />
+    <state width="1900" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580870641330" />
+    <state width="1900" height="282" key="GridCell.Tab.0.center" timestamp="1580967107511">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1900" height="282" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580675548218" />
-    <state width="1900" height="282" key="GridCell.Tab.0.left" timestamp="1580675548218">
+    <state width="1900" height="282" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580967107511" />
+    <state width="1900" height="282" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580870641330" />
+    <state width="1900" height="282" key="GridCell.Tab.0.left" timestamp="1580967107511">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1900" height="282" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580675548218" />
-    <state width="1900" height="282" key="GridCell.Tab.0.right" timestamp="1580675548218">
+    <state width="1900" height="282" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580967107511" />
+    <state width="1900" height="282" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580870641330" />
+    <state width="1900" height="282" key="GridCell.Tab.0.right" timestamp="1580967107511">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1900" height="282" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580675548218" />
+    <state width="1900" height="282" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580967107511" />
+    <state width="1900" height="282" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580870641330" />
+    <state width="1900" height="348" key="GridCell.Tab.1.bottom" timestamp="1580963866445">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1900" height="348" key="GridCell.Tab.1.bottom/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580963866445" />
+    <state width="1900" height="348" key="GridCell.Tab.1.center" timestamp="1580963866445">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1900" height="348" key="GridCell.Tab.1.center/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580963866445" />
+    <state width="1900" height="348" key="GridCell.Tab.1.left" timestamp="1580963866445">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1900" height="348" key="GridCell.Tab.1.left/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580963866445" />
+    <state width="1900" height="348" key="GridCell.Tab.1.right" timestamp="1580963866445">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1900" height="348" key="GridCell.Tab.1.right/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1580963866445" />
     <state x="227" y="100" width="1185" height="883" key="SettingsEditor" timestamp="1580621646528">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
