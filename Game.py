@@ -14,7 +14,7 @@ height = 720
 
 # Loading images
 zombie_walk = pyglet.resource.image('walk_spritesheet.png')
-#zombie_dead = pyglet.resource.image('dead_spritesheet.png')
+zombie_dead = pyglet.resource.image('dead_spritesheet.png')
 castle = pyglet.resource.image('wall_good.png')
 castle_lil_broke = pyglet.resource.image('wall_lil_broke.png')
 castle_lot_broke = pyglet.resource.image('wall_lotta_broke.png')
@@ -24,21 +24,21 @@ explosion = pyglet.resource.image('explosionSmall.png')
 
 # Dividing Spritesheets
 walk_grid = pyglet.image.ImageGrid(zombie_walk, 1, 10)
-#dead_grid = pyglet.image.ImageGrid(zombie_walk, 1, 10)
+dead_grid = pyglet.image.ImageGrid(zombie_dead, 1, 9)
 boom_grid = pyglet.image.ImageGrid(explosion, 5, 5)
 
 # Convert to texture grid
 walk_texture = pyglet.image.TextureGrid(walk_grid)
 walk_texture_list = walk_texture[:]
-#dead_texture = pyglet.image.TextureGrid(dead_grid)
-#dead_texture_list = walk_texture[:]
+dead_texture = pyglet.image.TextureGrid(dead_grid)
+dead_texture_list = dead_texture[:]
 boom_texture = pyglet.image.TextureGrid(boom_grid)
 boom_texture_list = boom_texture[:]
 
 # Get Animation Objects
 walk_anim = pyglet.image.Animation.from_image_sequence(walk_texture_list, 0.1, loop=True)
 boom_anim = pyglet.image.Animation.from_image_sequence(boom_texture_list, 0.05, loop=False)
-#dead_anim = pyglet.image.Animation.from_image_sequence(dead_texture_list, 0.1, loop=False)
+dead_anim = pyglet.image.Animation.from_image_sequence(dead_texture_list, 0.1, loop=False)
 
 # Create a window using Director
 window = cocos.director.director.init(
@@ -140,7 +140,6 @@ class ZombieWavesLayer(cocos.layer.Layer):
         for i in range(1, zombie_num+1):
             speed = random.randint(250, 300)
             rand_x = random.randrange(-1000, 0, 25)
-            print(rand_x)
             zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, 175), speed * (wave * 0.2), self, self.game_layer)
             self.zombies_list[i] = zombie_sprite
             self.add(zombie_sprite)
@@ -159,18 +158,14 @@ class ZombieSprite(cocos.sprite.Sprite):
         self.zombie_layer = zombie_layer
         self.game_layer = game_layer
 
-        self.max_health = 3
+        self.max_health = 2
         self.health = self.max_health
-        self.health_bar_red = HealthBar(255, 0, 0, 255, self.health)
+        self.health_bar_red = HealthBar(255, 0, 0, 255, 200, 50)
         self.health_bar_red.position = (-90, 200)
-        self.health_bar_red.width = 200
-        self.health_bar_red.height = 50
         self.add(self.health_bar_red)
 
-        self.health_bar_green = HealthBar(0, 255, 0, 255, self.health)
+        self.health_bar_green = HealthBar(0, 255, 0, 255, 200, 50)
         self.health_bar_green.position = (-90, 200)
-        self.health_bar_green.width = 200
-        self.health_bar_green.height = 50
         self.add(self.health_bar_green)
 
         self.do(Mover(speed))
@@ -188,20 +183,23 @@ class ZombieSprite(cocos.sprite.Sprite):
             self.on_processed_touch(x, y, buttons, modifiers)
 
     def on_processed_touch(self, x, y, buttons, modifiers):
-        # Move zombie offscreen before removing it from scene
+        # Reduce Health bar
         self.health = self.health - 1
-        #self.health_bar_green.reduce_health(self.max_health)
-        self.health_bar_green.width = self.health_bar_green.width - (self.health_bar_green.width / self.max_health)
-        print(self.health_bar_green.width)
-        if self.health_bar_green.width < 0:
-            self.health_bar_green.width = 0
+        self.health_bar_green.reduce_health(self.max_health)
 
+        # Move zombie offscreen before removing it from scene
         if self.health == 0:
-            #play death animation
-            self.position = (-1000, -1000)
+            self.health_bar_green.opacity = 0
+            self.health_bar_red.opacity = 0
             self.stop()
-            self.kill()
-            del self.zombie_layer.zombies_list[self.id]
+            self.image = dead_anim
+            self.position = (self.position[0], 165)
+            self.do(actions.Delay(3) + actions.CallFunc(self.remove_sprite))
+
+    def remove_sprite(self):
+        self.position = (-1000, -1000)
+        self.kill()
+        del self.zombie_layer.zombies_list[self.id]
 
     def update(self, dt):
         # check collision with wall
@@ -221,19 +219,6 @@ class ZombieSprite(cocos.sprite.Sprite):
             self.game_layer.add(self.game_layer.health_label)
 
             del self.zombie_layer.zombies_list[self.id]
-
-
-class HealthBar(cocos.layer.ColorLayer):
-    def __int__(self,  r, g, b, a, max_health):
-        super(HealthBar, self).__init__(r, g, b, a, width, height)
-        self.width = width
-        self.height = height
-
-    def reduce_health(self, max_health):
-        self.width = self.width - (self.width / max_health)
-        print(self.width)
-        if self.width < 0:
-            self.width = 0
 
 
 class BoomSprite(cocos.sprite.Sprite):
@@ -261,6 +246,22 @@ class ExplosionLayer(cocos.layer.Layer):
         boom = BoomSprite(px, py, boom_anim)
         self.add(boom)
         self.do(cocos.actions.Delay(boom.duration) + cocos.actions.CallFunc(boom.disappear))
+
+
+class HealthBar(cocos.layer.ColorLayer):
+
+    def __init__(self, r, g, b, a, w, h):
+        super(HealthBar, self).__init__(r, g, b, a, w, h)
+        self.maxwidth = w
+
+    def reduce_health(self, max_health):
+        self.width = self.width - (self.maxwidth / max_health)
+        if self.width < 0:
+            self.width = 0
+        # Updating the vertices, idk why. found this code online
+        x, y = int(self.width), int(self.height)
+        ox, oy = 0, 0
+        self._vertex_list.vertices[:] = [ox, oy, ox, oy + y, ox+x, oy+y, ox+x, oy]
 
 
 class Mover(cocos.actions.Move):
