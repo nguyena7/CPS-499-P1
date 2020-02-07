@@ -320,13 +320,16 @@ class PaulSprite(cocos.sprite.Sprite):
         self.fire_sprite.position = (-3000, -200)
         self.fire_sprite.rotation = -25
 
-        self.do(cocos.actions.Delay(3) + cocos.actions.CallFunc(self.breath_fire) + cocos.actions.Delay(3) + cocos.actions.CallFunc(self.stop_breathing_fire))
+        self.loop_breath_fire()
 
         self.hit_box = cocos.collision_model.AARectShape(cocos.euclid.Vector2(*self.position), self.width / 2,
                                                          self.height / 2)
 
+    def loop_breath_fire(self):
+        self.do(cocos.actions.Delay(3) + cocos.actions.CallFunc(self.breath_fire) + cocos.actions.Delay(3) +
+                cocos.actions.CallFunc(self.stop_breathing_fire) + cocos.actions.CallFunc(self.loop_breath_fire))
+
     def breath_fire(self):
-        print("breath fire")
         self.image = paul2
         self.add(self.fire_sprite)
 
