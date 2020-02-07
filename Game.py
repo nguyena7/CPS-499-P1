@@ -26,6 +26,7 @@ explosion = pyglet.resource.image('explosionSmall.png')
 paul = pyglet.resource.image('paul.png')
 paul2 = pyglet.resource.image('paul2.png')
 fire = pyglet.resource.image('fires.png')
+head_paul = pyglet.resource.image('headpaul.png')
 
 # Dividing Spritesheets
 walk_grid = pyglet.image.ImageGrid(zombie_walk, 1, 10)
@@ -314,6 +315,7 @@ class PaulSprite(cocos.sprite.Sprite):
         super(PaulSprite, self).__init__(image)
         self.scale = 0.1
         self.position = (1000, 200)
+        self.velocity = (0, 0)
 
         self.fire_sprite = cocos.sprite.Sprite(fire_anim)
         self.fire_sprite.scale = 20
@@ -325,9 +327,10 @@ class PaulSprite(cocos.sprite.Sprite):
 
         self.hit_box = cocos.collision_model.AARectShape(cocos.euclid.Vector2(*self.position), self.width / 2,
                                                          self.height / 2)
+        self.do_movements()
 
     def loop_breath_fire(self):
-        self.do(cocos.actions.Delay(3) + cocos.actions.CallFunc(self.breath_fire) + cocos.actions.Delay(3) +
+        self.do(cocos.actions.Delay(2) + cocos.actions.CallFunc(self.breath_fire) + cocos.actions.Delay(3) +
                 cocos.actions.CallFunc(self.stop_breathing_fire) + cocos.actions.CallFunc(self.loop_breath_fire))
 
     def breath_fire(self):
@@ -337,6 +340,14 @@ class PaulSprite(cocos.sprite.Sprite):
     def stop_breathing_fire(self):
         self.image = paul
         self.remove(self.fire_sprite)
+
+    def do_movements(self):
+        self.do(cocos.actions.interval_actions.MoveBy((-800, 0), 5) + cocos.actions.CallFunc(self.flip_sprite) +
+                cocos.actions.interval_actions.MoveBy((800, 0), 5) + cocos.actions.CallFunc(self.flip_sprite) +
+                cocos.actions.CallFunc(self.do_movements))
+
+    def flip_sprite(self):
+        self.scale_x = self.scale_x * -1
 
 
 class Mover(cocos.actions.Move):
@@ -374,6 +385,8 @@ class ButtonHandler(cocos.layer.ColorLayer):
     def __init__(self, r, g, b, a, w, h):
         super(ButtonHandler, self).__init__(r, g, b, a, w, h)
         window.push_handlers(self.on_mouse_press)
+
+        #Getting the world position instead of relative position within a layer
         self.worldpos = (0, 0)
 
     def does_contain_point(self, pos):
@@ -398,9 +411,14 @@ class ButtonHandler(cocos.layer.ColorLayer):
 class PaulButton(ButtonHandler):
     def __init__(self, r, g, b, a, w, h, buttons_layer):
         super(PaulButton, self).__init__(r, g, b, a, w, h)
-        self.position = (300, 5)
+        self.position = (405, 5)
         self.width = w
         self.height = h
+        paul_icon = cocos.sprite.Sprite(head_paul, (self.width/2, self.height/2))
+        paul_icon.scale = 0.085
+        self.add(paul_icon)
+        paul_price = cocos.text.Label("$1000", (0, 0), color=(0, 0, 0, 255))
+        self.add(paul_price)
 
     def on_processed_touch(self, x, y, buttons, modifiers):
         print("Spawned Paul")
