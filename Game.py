@@ -75,9 +75,9 @@ class Menu(cocos.menu.Menu):
 
 
 class FriendsLayer(cocos.layer.Layer):
-    def __init(self):
+    def __init__(self):
         super(FriendsLayer, self).__init__()
-        self.add(PaulSprite(paul))
+        #self.add(PaulSprite(paul))
 
 
 class Game(cocos.layer.Layer):
@@ -88,9 +88,10 @@ class Game(cocos.layer.Layer):
         background_sprite = cocos.sprite.Sprite(background, position=(width * 0.5, height * 0.5))
         self.wall_sprite = cocos.sprite.Sprite(castle, position=(1200, 244))
         self.add(background_sprite)
+        self.add(Buttons(255, 255, 0, 255, 500, 100))
         self.add(self.wall_sprite)
         self.add(ZombieWavesLayer(zombie_num=2, game_layer=self))
-        self.add(PaulSprite(paul))
+        #self.add(PaulSprite(paul))
         self.add(FriendsLayer())
         self.add(ExplosionLayer())
         self.wave_count = 1
@@ -343,12 +344,68 @@ class Mover(cocos.actions.Move):
         super(Mover, self).__init__()
         self.speed = speed
 
-
     def step(self, dt):
         super().step(dt)
         vel_x = self.speed
         vel_y = 0
         self.target.velocity = (vel_x, vel_y)
+
+
+# Buttons are drawn on this layer
+class Buttons(cocos.layer.ColorLayer):
+    def __init__(self, r, g, b, a, w, h):
+        super(Buttons, self).__init__(r, g, b, a, w, h)
+        self.w = w
+        self.h = h
+        self.position = (775, 610)
+        self.add(cocos.text.Label("Shop", color=(0, 0, 0, 255)))
+
+        # Buy Paul Button
+        paulbutt = PaulButton(0, 200, 0, 255, 90, 90, self)
+        paulbutt.worldpos = self.point_to_world(paulbutt.position)
+        self.add(paulbutt)
+
+    def show_buttons(self, button):
+        self.add(button)
+
+
+# Different buttons use this class to handle mouse presses
+class ButtonHandler(cocos.layer.ColorLayer):
+    def __init__(self, r, g, b, a, w, h):
+        super(ButtonHandler, self).__init__(r, g, b, a, w, h)
+        window.push_handlers(self.on_mouse_press)
+        self.worldpos = (0, 0)
+
+    def does_contain_point(self, pos):
+        print("mouse: ", pos)
+        print("button: ", self.position)
+        print("x: ", self.worldpos[0], " y: ", self.worldpos[1])
+        return (
+                (abs(pos[0]) < (self.worldpos[0] + self.width)) and
+                (abs(pos[0]) > (self.worldpos[0]) and
+                (abs(pos[1]) < (self.worldpos[1] + self.height))) and
+                (abs(pos[1]) > (self.worldpos[1])))
+
+    def on_mouse_press(self, x, y, buttons, modifiers):
+        px, py = director.get_virtual_coordinates(x, y)
+        if self.does_contain_point((x, y)):
+            self.on_processed_touch(x, y, buttons, modifiers)
+
+    def on_processed_touch(self, x, y, buttons, modifiers):
+        pass
+
+
+class PaulButton(ButtonHandler):
+    def __init__(self, r, g, b, a, w, h, buttons_layer):
+        super(PaulButton, self).__init__(r, g, b, a, w, h)
+        self.position = (300, 5)
+        self.width = w
+        self.height = h
+
+    def on_processed_touch(self, x, y, buttons, modifiers):
+        print("Spawned Paul")
+        paul_sprite = PaulSprite(paul)
+        game_layer.add(paul_sprite)
 
 
 if __name__ == "__main__":
