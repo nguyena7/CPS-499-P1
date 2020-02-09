@@ -67,7 +67,6 @@ class Menu(cocos.menu.Menu):
 
     def start_game(self):
         global game_layer
-        game_layer = Game()
         game_scene = cocos.scene.Scene(game_layer)
         cocos.director.director.run(game_scene)
 
@@ -80,23 +79,33 @@ class FriendsLayer(cocos.layer.Layer):
         super(FriendsLayer, self).__init__()
         #self.add(PaulSprite(paul))
 
+class Collisions:
+    def __init__(self):
+        self.col_manager = cocos.collision_model.CollisionManagerBruteForce()
+
 
 class Game(cocos.layer.Layer):
     """Main Layer that the background, wall, and zombies layer are attached to"""
 
     def __init__(self):
         super(Game, self).__init__()
+
         background_sprite = cocos.sprite.Sprite(background, position=(width * 0.5, height * 0.5))
         self.wall_sprite = cocos.sprite.Sprite(castle, position=(1200, 244))
         self.add(background_sprite)
         self.add(Buttons(255, 255, 0, 255, 500, 100))
         self.add(self.wall_sprite)
-        self.add(ZombieWavesLayer(zombie_num=2, game_layer=self))
-        #self.add(PaulSprite(paul))
+        self.add(ZombieWavesLayer(zombie_num=2))
         self.add(FriendsLayer())
         self.add(ExplosionLayer())
         self.wave_count = 1
         self.wall_health = 10
+        self.money = 0
+
+        # Label for money
+        money_str = "$" + str(self.money)
+        self.money_label = cocos.text.Label(text=money_str, position=(600, 650), font_size=30, color=(0, 0, 0, 255))
+        self.add(self.money_label)
 
         # Label for Wave count
         wave_str = "Wave: " + str(self.wave_count)
@@ -108,9 +117,10 @@ class Game(cocos.layer.Layer):
         self.health_label = cocos.text.Label(wallhealth_str, position=(1060, 550), font_size=30, color=(0, 0, 0, 255))
         self.add(self.health_label)
 
-        self.schedule(self.check_health)
+        self.schedule(self.updates)
 
-    def check_health(self, dt):
+    def updates(self, dt):
+        # Check wall health
         if self.wall_health == 0:
             self.wall_sprite.image = castle_no_door
             lose_label = cocos.text.Label("YOU LOST", position=((width / 2) - 200, height / 2), font_size=50,
@@ -133,11 +143,10 @@ class Game(cocos.layer.Layer):
 class ZombieWavesLayer(cocos.layer.Layer):
     """"Layer for all zombie sprites"""
 
-    def __init__(self, zombie_num, game_layer):
+    def __init__(self, zombie_num):
         super(ZombieWavesLayer, self).__init__()
         self.schedule_interval(self.update, 1 / 60)
         self.zombie_num = zombie_num
-        self.game_layer = game_layer
         self.zombies_list = {}
         self.sorted_zombies = []
 
@@ -152,20 +161,16 @@ class ZombieWavesLayer(cocos.layer.Layer):
     def update(self, dt):
         if len(self.get_children()) == 0:
             self.zombie_num = self.zombie_num + 2
-            self.game_layer.wave_count = self.game_layer.wave_count + 1
+            game_layer.wave_count = game_layer.wave_count + 1
             self.new_wave(self.zombie_num)
 
             # Update Wave counter and Label
-            self.game_layer.remove(self.game_layer.wave_label)
-            wave_str = "Wave: " + str(self.game_layer.wave_count)
-            self.game_layer.wave_label = cocos.text.Label(wave_str, position=(50, 650), font_size=30,
-                                                          color=(0, 0, 0, 255))
-            game_layer.add(self.game_layer.wave_label)
+            game_layer.wave_label.element.text = "Wave: " + str(game_layer.wave_count)
 
     def new_wave(self, zombie_num):
         self.zombies_list = {}
         self.sorted_zombies = []
-        wave = self.game_layer.wave_count
+        wave = game_layer.wave_count
 
         self.spawn_zombies(zombie_num, wave)
 
@@ -173,22 +178,26 @@ class ZombieWavesLayer(cocos.layer.Layer):
         # up the screen
         self.sorted_zombies.sort(key=lambda x: x.position[1], reverse=True)
         for zombie in self.sorted_zombies:
-            self.add(zombie)
+            i = 1
+            self.add(zombie, z=i)
+            i = i + 1
 
     def spawn_zombies(self, zombie_num, wave):
         for i in range(1, zombie_num + 1):
             speed = random.randint(250, 300)
             rand_x = random.randrange(-800, 0, 25)
             rand_y = random.randrange(70, 175, 10)
-            zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, rand_y), speed * (wave * 0.2), self, self.game_layer)
+            zombie_sprite = ZombieSprite(i, walk_anim, (rand_x, rand_y), speed, self)
             self.zombies_list[i] = zombie_sprite
             self.sorted_zombies.append(zombie_sprite)
+            collisions.col_manager.add(zombie_sprite)
 
 
 class ZombieSprite(cocos.sprite.Sprite):
     """Zombie Sprites"""
-    def __init__(self, id, image, pos, speed, zombie_layer, game_layer):
+    def __init__(self, id, image, pos, speed, zombie_layer):
         super(ZombieSprite, self).__init__(image)
+        self.name = "zombie"
         self.id = id
         self.image = image
         self.position = pos
@@ -196,7 +205,6 @@ class ZombieSprite(cocos.sprite.Sprite):
         self.scale = .25
 
         self.zombie_layer = zombie_layer
-        self.game_layer = game_layer
 
         self.max_health = 5
         self.health = self.max_health
@@ -208,7 +216,7 @@ class ZombieSprite(cocos.sprite.Sprite):
         self.health_bar_green.position = (-90, 200)
         self.add(self.health_bar_green)
 
-        self.hit_box = cocos.collision_model.AARectShape(cocos.euclid.Vector2(*self.position), self.width / 2,
+        self.cshape = cocos.collision_model.AARectShape(cocos.euclid.Vector2(*self.position), self.width / 2,
                                                          self.height / 2)
 
         self.do(Mover(speed))
@@ -229,9 +237,13 @@ class ZombieSprite(cocos.sprite.Sprite):
         # Reduce Health bar
         self.health = self.health - 1
         self.health_bar_green.reduce_health(self.max_health)
+        self.check_health()
 
-        # Move zombie offscreen before removing it from scene
-        if self.health == 0:
+    def check_health(self):
+        if self.health <= 0:
+            self.health = 9999
+            game_layer.money = game_layer.money + 100
+            game_layer.money_label.element.text = "$" + str(game_layer.money)
             self.health_bar_green.opacity = 0
             self.health_bar_red.opacity = 0
             self.stop()
@@ -241,28 +253,25 @@ class ZombieSprite(cocos.sprite.Sprite):
 
     def remove_sprite(self):
         self.position = (-1000, -1000)
+        collisions.col_manager.remove_tricky(self)
         self.kill()
         del self.zombie_layer.zombies_list[self.id]
 
     def update(self, dt):
+        # Collision Detection
+        if collisions.col_manager.objs_colliding(self):
+            print("pos: " + str(self.position) + " COLLIDING")
+
         # check collision with wall
         if self.position[0] >= 1060:
-
-            self.stop()
             # Move zombie offscreen before removing it from scene
-            self.position = (-1000, -1000)
-            self.kill()
-
+            self.stop()
+            self.remove_sprite()
             # Wall health
-            self.game_layer.remove(self.game_layer.health_label)
-            if self.game_layer.wall_health != 0:
-                self.game_layer.wall_health = self.game_layer.wall_health - 1
-            wallhealth_str = "Health: " + str(self.game_layer.wall_health)
-            self.game_layer.health_label = cocos.text.Label(wallhealth_str, position=(1060, 550), font_size=30,
-                                                            color=(0, 0, 0, 255))
-            self.game_layer.add(self.game_layer.health_label)
-
-            del self.zombie_layer.zombies_list[self.id]
+            if game_layer.wall_health != 0:
+                game_layer.wall_health = game_layer.wall_health - 1
+            wallhealth_str = "Health: " + str(game_layer.wall_health)
+            game_layer.health_label.element.text = wallhealth_str
 
 
 class BoomSprite(cocos.sprite.Sprite):
@@ -313,6 +322,7 @@ class HealthBar(cocos.layer.ColorLayer):
 class PaulSprite(cocos.sprite.Sprite):
     def __init__(self, image):
         super(PaulSprite, self).__init__(image)
+        self.name = "paul"
         self.scale = 0.1
         self.position = (1000, 200)
         self.velocity = (0, 0)
@@ -325,13 +335,17 @@ class PaulSprite(cocos.sprite.Sprite):
 
         self.loop_breath_fire()
 
-        self.hit_box = cocos.collision_model.AARectShape(cocos.euclid.Vector2(*self.position), self.width / 2,
-                                                         self.height / 2)
+        self.cshape = cocos.collision_model.AARectShape(cocos.euclid.Vector2(*self.position), (self.width + 500) / 2,
+                                                        self.height / 2)
         self.do_movements()
 
+        self.schedule_interval(self.update, 1/60)
+
     def loop_breath_fire(self):
-        self.do(cocos.actions.Delay(2) + cocos.actions.CallFunc(self.breath_fire) + cocos.actions.Delay(3) +
-                cocos.actions.CallFunc(self.stop_breathing_fire) + cocos.actions.CallFunc(self.loop_breath_fire))
+        #self.do(cocos.actions.Delay(2) + cocos.actions.CallFunc(self.breath_fire) + cocos.actions.Delay(3) +
+        #        cocos.actions.CallFunc(self.stop_breathing_fire) + cocos.actions.CallFunc(self.loop_breath_fire))
+        self.do(cocos.actions.CallFunc(self.breath_fire) + cocos.actions.Delay(3) +
+                cocos.actions.CallFunc(self.loop_breath_fire))
 
     def breath_fire(self):
         self.image = paul2
@@ -342,12 +356,27 @@ class PaulSprite(cocos.sprite.Sprite):
         self.remove(self.fire_sprite)
 
     def do_movements(self):
-        self.do(cocos.actions.interval_actions.MoveBy((-800, 0), 5) + cocos.actions.CallFunc(self.flip_sprite) +
-                cocos.actions.interval_actions.MoveBy((800, 0), 5) + cocos.actions.CallFunc(self.flip_sprite) +
-                cocos.actions.CallFunc(self.do_movements))
+        #self.do(cocos.actions.interval_actions.MoveBy((-800, 0), 5) + cocos.actions.CallFunc(self.flip_sprite) +
+        #        cocos.actions.interval_actions.MoveBy((800, 0), 5) + cocos.actions.CallFunc(self.flip_sprite) +
+        #        cocos.actions.CallFunc(self.do_movements))
+        self.do(cocos.actions.interval_actions.MoveBy((-1200, 0), 5) + cocos.actions.CallFunc(self.remove_sprite))
+
+    def remove_sprite(self):
+        self.kill()
 
     def flip_sprite(self):
         self.scale_x = self.scale_x * -1
+
+    def update(self, dt):
+        self.cshape.center = self.position
+        for obj in collisions.col_manager.iter_colliding(self):
+            if obj.name == "zombie":
+                self.do(cocos.actions.Delay(1))
+                obj.health_bar_green.reduce_health(obj.max_health)
+                obj.health -= 1
+                obj.check_health()
+                print(obj.health)
+                print("PAUL TOUCHING ZOMBIE: " + str(obj))
 
 
 class Mover(cocos.actions.Move):
@@ -360,6 +389,8 @@ class Mover(cocos.actions.Move):
         vel_x = self.speed
         vel_y = 0
         self.target.velocity = (vel_x, vel_y)
+        self.target.cshape.center = cocos.euclid.Vector2(*self.target.position)
+        #print(self.target.cshape.center)
 
 
 # Buttons are drawn on this layer
@@ -390,9 +421,9 @@ class ButtonHandler(cocos.layer.ColorLayer):
         self.worldpos = (0, 0)
 
     def does_contain_point(self, pos):
-        print("mouse: ", pos)
-        print("button: ", self.position)
-        print("x: ", self.worldpos[0], " y: ", self.worldpos[1])
+        #print("mouse: ", pos)
+        #print("button: ", self.position)
+        #print("x: ", self.worldpos[0], " y: ", self.worldpos[1])
         return (
                 (abs(pos[0]) < (self.worldpos[0] + self.width)) and
                 (abs(pos[0]) > (self.worldpos[0]) and
@@ -414,19 +445,25 @@ class PaulButton(ButtonHandler):
         self.position = (405, 5)
         self.width = w
         self.height = h
+        self.price = 0000
         paul_icon = cocos.sprite.Sprite(head_paul, (self.width/2, self.height/2))
         paul_icon.scale = 0.085
         self.add(paul_icon)
-        paul_price = cocos.text.Label("$1000", (0, 0), color=(0, 0, 0, 255))
+        paul_price = cocos.text.Label("$"+str(self.price), (0, 0), color=(0, 0, 0, 255))
         self.add(paul_price)
 
     def on_processed_touch(self, x, y, buttons, modifiers):
-        print("Spawned Paul")
-        paul_sprite = PaulSprite(paul)
-        game_layer.add(paul_sprite)
+        if game_layer.money >= self.price:
+            game_layer.money = game_layer.money - self.price
+            game_layer.money_label.element.text = "$" + str(game_layer.money)
+            paul_sprite = PaulSprite(paul)
+            game_layer.add(paul_sprite)
+            collisions.col_manager.add(paul_sprite)
 
 
 if __name__ == "__main__":
+    collisions = Collisions()
+    game_layer = Game()
     menu = Menu()
     menu_scene = cocos.scene.Scene()
     menu_scene.add(menu)
