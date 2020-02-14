@@ -14,6 +14,27 @@ title = "Game"
 width = 1280
 height = 720
 
+#Load video
+# vidPath = 'oldtownminecraftMV.mp4'
+# player = pyglet.media.Player()
+# source = pyglet.media.StreamingSource()
+# MediaLoad = pyglet.media.load(vidPath)
+# player.queue(MediaLoad)
+# player.play()
+
+# Loading music
+paul_sound = pyglet.media.load('paul_sound.wav')
+song = pyglet.media.load('OLM.wav')
+song_src = pyglet.media.StaticSource(song)
+player = pyglet.media.Player()
+player.loop = True
+player.volume = 0.05
+player.play()
+
+# paul_player = pyglet.media.Player()
+# paul_player.volume = 0.03
+# paul_player.play()
+
 # Loading images
 zombie_walk = pyglet.resource.image('walk_spritesheet.png')
 zombie_dead = pyglet.resource.image('dead_spritesheet.png')
@@ -67,10 +88,13 @@ class Menu(cocos.menu.Menu):
 
     def start_game(self):
         global game_layer
+        game_layer = Game()
         game_scene = cocos.scene.Scene(game_layer)
+
         cocos.director.director.run(game_scene)
 
     def quit_game(self):
+        player.delete()
         exit(1)
 
 
@@ -119,6 +143,8 @@ class Game(cocos.layer.Layer):
 
         self.schedule(self.updates)
 
+        player.queue(song_src)
+
     def updates(self, dt):
         # Check wall health
         if self.wall_health == 0:
@@ -137,6 +163,7 @@ class Game(cocos.layer.Layer):
             self.wall_sprite.image = castle_lil_broke
 
     def return_to_menu(self):
+        player.delete()
         cocos.director.director.run(menu_scene)
 
 
@@ -206,11 +233,13 @@ class ZombieSprite(cocos.sprite.Sprite):
 
         self.zombie_layer = zombie_layer
 
-        self.max_health = 5
+        self.max_health = 1
         self.health = self.max_health
         self.health_bar_red = HealthBar(255, 0, 0, 255, 200, 50)
         self.health_bar_red.position = (-90, 200)
         self.add(self.health_bar_red)
+
+        self.death_award = 100
 
         self.health_bar_green = HealthBar(0, 255, 0, 255, 200, 50)
         self.health_bar_green.position = (-90, 200)
@@ -242,7 +271,7 @@ class ZombieSprite(cocos.sprite.Sprite):
     def check_health(self):
         if self.health <= 0:
             self.health = 9999
-            game_layer.money = game_layer.money + 100
+            game_layer.money = game_layer.money + self.death_award
             game_layer.money_label.element.text = "$" + str(game_layer.money)
             self.health_bar_green.opacity = 0
             self.health_bar_red.opacity = 0
@@ -259,8 +288,8 @@ class ZombieSprite(cocos.sprite.Sprite):
 
     def update(self, dt):
         # Collision Detection
-        if collisions.col_manager.objs_colliding(self):
-            print("pos: " + str(self.position) + " COLLIDING")
+        # if collisions.col_manager.objs_colliding(self):
+        #     print("pos: " + str(self.position) + " COLLIDING")
 
         # check collision with wall
         if self.position[0] >= 1060:
@@ -327,6 +356,10 @@ class PaulSprite(cocos.sprite.Sprite):
         self.position = (1000, 200)
         self.velocity = (0, 0)
 
+        self.paul_player = pyglet.media.Player()
+        self.paul_player.volume = 0.03
+        self.paul_player.queue(paul_sound)
+
         self.fire_sprite = cocos.sprite.Sprite(fire_anim)
         self.fire_sprite.scale = 20
         self.fire_sprite.scale_x = -1
@@ -340,6 +373,8 @@ class PaulSprite(cocos.sprite.Sprite):
         self.do_movements()
 
         self.schedule_interval(self.update, 1/60)
+
+        self.paul_player.play()
 
     def loop_breath_fire(self):
         #self.do(cocos.actions.Delay(2) + cocos.actions.CallFunc(self.breath_fire) + cocos.actions.Delay(3) +
@@ -359,7 +394,7 @@ class PaulSprite(cocos.sprite.Sprite):
         #self.do(cocos.actions.interval_actions.MoveBy((-800, 0), 5) + cocos.actions.CallFunc(self.flip_sprite) +
         #        cocos.actions.interval_actions.MoveBy((800, 0), 5) + cocos.actions.CallFunc(self.flip_sprite) +
         #        cocos.actions.CallFunc(self.do_movements))
-        self.do(cocos.actions.interval_actions.MoveBy((-1200, 0), 5) + cocos.actions.CallFunc(self.remove_sprite))
+        self.do(cocos.actions.interval_actions.MoveBy((-1200, 0), 1.5) + cocos.actions.CallFunc(self.remove_sprite))
 
     def remove_sprite(self):
         self.kill()
@@ -375,8 +410,6 @@ class PaulSprite(cocos.sprite.Sprite):
                 obj.health_bar_green.reduce_health(obj.max_health)
                 obj.health -= 1
                 obj.check_health()
-                print(obj.health)
-                print("PAUL TOUCHING ZOMBIE: " + str(obj))
 
 
 class Mover(cocos.actions.Move):
@@ -390,7 +423,6 @@ class Mover(cocos.actions.Move):
         vel_y = 0
         self.target.velocity = (vel_x, vel_y)
         self.target.cshape.center = cocos.euclid.Vector2(*self.target.position)
-        #print(self.target.cshape.center)
 
 
 # Buttons are drawn on this layer
@@ -463,7 +495,6 @@ class PaulButton(ButtonHandler):
 
 if __name__ == "__main__":
     collisions = Collisions()
-    game_layer = Game()
     menu = Menu()
     menu_scene = cocos.scene.Scene()
     menu_scene.add(menu)
